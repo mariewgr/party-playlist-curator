@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import SongCard from './SongCard';
 
-const SERVER = import.meta.env.VITE_SERVER_URL;
+const SERVER = `http://${window.location.hostname}:3001`;
 
 export default function SearchBar({ onAdd, actionLabel = 'Add' }) {
   const [query, setQuery] = useState('');

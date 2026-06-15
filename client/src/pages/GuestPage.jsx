@@ -5,7 +5,7 @@ import SearchBar from '../components/SearchBar';
 import Queue from '../components/Queue';
 import Toast from '../components/Toast';
 
-const SERVER = import.meta.env.VITE_SERVER_URL;
+const SERVER = `http://${window.location.hostname}:3001`;
 
 export default function GuestPage() {
   const [queue, setQueue] = useState([]);

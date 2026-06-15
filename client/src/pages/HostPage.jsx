@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import socket from '../socket';
 import NowPlaying from '../components/NowPlaying';
@@ -7,12 +7,15 @@ import Queue from '../components/Queue';
 import QRCode from '../components/QRCode';
 import Toast from '../components/Toast';
 
-const SERVER = import.meta.env.VITE_SERVER_URL;
+const SERVER = `http://${window.location.hostname}:3001`;
 
 export default function HostPage() {
   const [token, setToken] = useState(null);
   const [queue, setQueue] = useState([]);
   const [toast, setToast] = useState('');
+  const [votedIds, setVotedIds] = useState(
+    () => JSON.parse(localStorage.getItem('host-voted') || '[]')
+  );
 
   // Check for token on mount and after OAuth callback
   useEffect(() => {
@@ -50,6 +53,19 @@ export default function HostPage() {
       showToast('Skipped!');
     } catch {
       showToast('Could not skip — make sure Spotify is playing');
+    }
+  };
+
+  const handleVote = async (trackId) => {
+    if (votedIds.includes(trackId)) return;
+    try {
+      await axios.post(`${SERVER}/api/queue/vote/${trackId}`);
+      const updated = [...votedIds, trackId];
+      setVotedIds(updated);
+      localStorage.setItem('host-voted', JSON.stringify(updated));
+      showToast('Vote cast!');
+    } catch {
+      showToast('Could not vote');
     }
   };
 
@@ -103,7 +119,7 @@ export default function HostPage() {
               </button>
             )}
           </div>
-          <Queue queue={queue} />
+          <Queue queue={queue} onVote={handleVote} votedIds={votedIds} />
         </section>
 
         <QRCode />

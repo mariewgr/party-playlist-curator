@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import axios from 'axios';
 
-const SERVER = import.meta.env.VITE_SERVER_URL;
+const SERVER = `http://${window.location.hostname}:3001`;
 
 export default function QRCode() {
   const [hostUrl, setHostUrl] = useState('');

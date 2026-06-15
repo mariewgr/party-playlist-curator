@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 
-const socket = io(import.meta.env.VITE_SERVER_URL);
+const serverUrl = `http://${window.location.hostname}:3001`;
+const socket = io(serverUrl);
 
 export default socket;
