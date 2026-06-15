@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && nodemon index.js",
-    "client": "cd client && vite --host"
+    "server": "cd server && npx nodemon index.js",
+    "client": "cd client && npx vite --host"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
