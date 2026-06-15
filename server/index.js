@@ -14,13 +14,13 @@ const app = express();
 const httpServer = http.createServer(app);
 
 const io = new Server(httpServer, {
-  cors: { origin: process.env.CLIENT_URL, methods: ['GET', 'POST'] },
+  cors: { origin: '*', methods: ['GET', 'POST'] },
 });
 
 // Inject io into queue router
 queueRouter.setIO(io);
 
-app.use(cors({ origin: process.env.CLIENT_URL }));
+app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 app.use('/auth', authRouter);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import socket from '../socket';
 import NowPlaying from '../components/NowPlaying';
@@ -16,6 +16,7 @@ export default function HostPage() {
   const [votedIds, setVotedIds] = useState(
     () => JSON.parse(localStorage.getItem('host-voted') || '[]')
   );
+  const currentTrackIdRef = useRef(null);
 
   // Check for token on mount and after OAuth callback
   useEffect(() => {
@@ -31,10 +32,29 @@ export default function HostPage() {
   // Live queue updates via socket.io
   useEffect(() => {
     socket.on('queue:update', setQueue);
-    // Fetch initial queue
     axios.get(`${SERVER}/api/queue`).then(({ data }) => setQueue(data)).catch(() => {});
     return () => socket.off('queue:update', setQueue);
   }, []);
+
+  // Auto-play next top-voted song when the track changes on Spotify
+  useEffect(() => {
+    if (!token) return;
+    const interval = setInterval(async () => {
+      try {
+        const { data: track } = await axios.get(`${SERVER}/api/now-playing`);
+        const newId = track?.id ?? null;
+        if (currentTrackIdRef.current !== null && currentTrackIdRef.current !== newId) {
+          // Track changed — play next from our queue
+          const { data: currentQueue } = await axios.get(`${SERVER}/api/queue`);
+          if (currentQueue.length > 0) {
+            await axios.post(`${SERVER}/api/queue/play`);
+          }
+        }
+        currentTrackIdRef.current = newId;
+      } catch {}
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const showToast = (msg) => setToast(msg);
 
